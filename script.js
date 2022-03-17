@@ -6,6 +6,8 @@ destination_form.addEventListener("submit", handleFormSubmit);
 // OR
 // document.getElementById("destination_form").addEventListener("submit", handleFormSubmit);
 
+const myAccessKey = "RBNubN2FPaJRmlgC5iQzjpEtLGZgg_yZ_cbNfEebIsU";
+
 function handleFormSubmit(event) {
     // 1. pause the submit refresh behavior (orevent default behavior of the form => preventDefault method)
 
@@ -28,7 +30,7 @@ function handleFormSubmit(event) {
     createCard({
         destination,
         location,
-        photo_url,
+        // photo_url,
         description
     });
     
@@ -36,8 +38,8 @@ function handleFormSubmit(event) {
     // 3. Put the values of the variables in a card
     // &
     // 4. Display the card on the page (inside the #cards_container div)
-    function createCard({ description, photo_url, destination, location }) {
-        console.log(location, destination, description, photo_url);
+    function createCard({ destination, location, description  }) {
+        // console.log(location, destination, description, photo_url);
 
         /*
         <div class="card" style="width: 18rem;">
@@ -74,24 +76,34 @@ function handleFormSubmit(event) {
 
         // set attribute of class of img as 'card-img-top' <-- places img as the top section of the card
         img.setAttribute("class", "card-img-top");
+
+        img.setAttribute("src", photo_url);
         
-        // set attribute of alt of img as 'img_name'
-        img.setAttribute("alt", name);
+        // set attribute of alt of img as 'name'
+        img.setAttribute("alt", destination);
 
         // set style of photo, to keep cards uniform
         img.style.height = "185px";
+
+
         
-        
+        if (photo_url.length === 0 ) {
+            pullImage(destination).then((data) => {
+                img.setAttribute("src", data.urls.small);
+            })
+        }
+
         // check to see if user did / didn't submit optional photo
         
         // set a default photo if one is not submitted by user
-        var defaultPhotoUrl = "https://imageio.forbes.com/specials-images/imageserve/5f709d82fa4f131fa2114a74/solo-women-travel-female-travel/960x0.jpg?fit=bounds&format=jpg&width=960";
+        // var defaultPhotoUrl = "https://imageio.forbes.com/specials-images/imageserve/5f709d82fa4f131fa2114a74/solo-women-travel-female-travel/960x0.jpg?fit=bounds&format=jpg&width=960";
         
-        if (photo_url.length === 0) {                   // <-- checks if no submission
-            img.setAttribute("src", defaultPhotoUrl);   // <-- sets to default if no submission
-        } else {
-            img.setAttribute("src", photo_url);         // <-- sets submission as photo if photo submitted
-        }
+        // if (photo_url.length === 0) {                   // <-- checks if no submission
+        //     img.setAttribute("src", defaultPhotoUrl);   // <-- sets to default if no submission
+        // } else {
+        //     img.setAttribute("src", photo_url);         // <-- sets submission as photo if photo submitted
+        // }
+
         // append img to card
         card.appendChild(img);
         
@@ -108,7 +120,7 @@ function handleFormSubmit(event) {
         //set attribute of class to 'card-title' (destination)
         cardTitle.setAttribute("class", "card-title");
         
-        // set innerText to 'destinationName'
+        // set innerText to 'destination'
         cardTitle.innerText = destination;
         
         // append cardTitle to cardBody
@@ -120,7 +132,7 @@ function handleFormSubmit(event) {
         //set attribute of class to 'card-subTitle'
         cardSubTitle.setAttribute("class", "card-subTitle");
         
-        // set innerText to 'locationName'
+        // set innerText to 'location'
         cardSubTitle.innerText = location;
         
         // append cardTitle to cardBody
@@ -206,14 +218,12 @@ function handleFormSubmit(event) {
         var card = cardBody.parentElement           // <-- identifies that entire cardBody on parent card will be deleted
         card.remove();                              // <-- deletes card
     }
+ 
 }
 
-
-
-
-    
-
-
-
-
-
+async function pullImage(destination) {
+    let unsplashImg = await fetch("https://api.unsplash.com/photos/random?page=1&query=" + destination + "&client_id=" + myAccessKey)
+    let data = await unsplashImg.json();
+    console.log(data)
+    return data;    
+}
