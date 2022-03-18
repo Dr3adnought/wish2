@@ -6,6 +6,8 @@ destination_form.addEventListener("submit", handleFormSubmit);
 // OR
 // document.getElementById("destination_form").addEventListener("submit", handleFormSubmit);
 
+const myAccessKey = "RBNubN2FPaJRmlgC5iQzjpEtLGZgg_yZ_cbNfEebIsU";
+
 function handleFormSubmit(event) {
     // 1. pause the submit refresh behavior (orevent default behavior of the form => preventDefault method)
 
@@ -28,7 +30,7 @@ function handleFormSubmit(event) {
     createCard({
         destination,
         location,
-        photo_url,
+        // photo_url,
         description
     });
     
@@ -36,8 +38,8 @@ function handleFormSubmit(event) {
     // 3. Put the values of the variables in a card
     // &
     // 4. Display the card on the page (inside the #cards_container div)
-    function createCard({ description, photo_url, destination, location }) {
-        console.log(location, destination, description, photo_url);
+    function createCard({ destination, location, description  }) {    //  <---  this passes the variables as an object, so that it is easier to destructure later
+        // console.log(location, destination, description, photo_url);     //  <--- as such, order of placement doesn't really matter
 
         /*
         <div class="card" style="width: 18rem;">
@@ -75,24 +77,22 @@ function handleFormSubmit(event) {
         // set attribute of class of img as 'card-img-top' <-- places img as the top section of the card
         img.setAttribute("class", "card-img-top");
         
-        // set attribute of alt of img as 'img_name'
-        img.setAttribute("alt", name);
-
+        // set attribute of alt of img as 'name'
+        img.setAttribute("alt", destination);
+        
         // set style of photo, to keep cards uniform
         img.style.height = "185px";
-        
-        
-        // check to see if user did / didn't submit optional photo
-        
-        // set a default photo if one is not submitted by user
-        var defaultPhotoUrl = "https://imageio.forbes.com/specials-images/imageserve/5f709d82fa4f131fa2114a74/solo-women-travel-female-travel/960x0.jpg?fit=bounds&format=jpg&width=960";
-        
-        if (photo_url.length === 0) {                   // <-- checks if no submission
-            img.setAttribute("src", defaultPhotoUrl);   // <-- sets to default if no submission
-        } else {
-            img.setAttribute("src", photo_url);         // <-- sets submission as photo if photo submitted
+                
+        // check to see if user submitted a photo.
+        if (photo_url.length === 0 ) {                      // <-- this checks for submission, === 0 means no submission
+            pullImage(destination).then((data) => {         // since no submission, activate function of pullImage, then
+                img.setAttribute("src", data.urls.small);   // set image as img on card
+            })
+        } else {                                            // <-- if user did submit a url link for a photo, then
+            img.setAttribute("src", photo_url);             // use that photo as the src.
         }
-        // append img to card
+        
+        // add img to card
         card.appendChild(img);
         
         
@@ -108,7 +108,7 @@ function handleFormSubmit(event) {
         //set attribute of class to 'card-title' (destination)
         cardTitle.setAttribute("class", "card-title");
         
-        // set innerText to 'destinationName'
+        // set innerText to 'destination'
         cardTitle.innerText = destination;
         
         // append cardTitle to cardBody
@@ -120,7 +120,7 @@ function handleFormSubmit(event) {
         //set attribute of class to 'card-subTitle'
         cardSubTitle.setAttribute("class", "card-subTitle");
         
-        // set innerText to 'locationName'
+        // set innerText to 'location'
         cardSubTitle.innerText = location;
         
         // append cardTitle to cardBody
@@ -206,14 +206,13 @@ function handleFormSubmit(event) {
         var card = cardBody.parentElement           // <-- identifies that entire cardBody on parent card will be deleted
         card.remove();                              // <-- deletes card
     }
+ 
 }
 
-
-
-
-    
-
-
-
-
-
+// function to pull random image from Unsplash.com based on query input of destination
+async function pullImage(destination) {
+    const url = `https://api.unsplash.com/photos/random?page=1&query=${destination}&client_id=${myAccessKey}`
+    const unsplashImg = await fetch(url);
+    const data = await unsplashImg.json(); 
+    return data;
+}
