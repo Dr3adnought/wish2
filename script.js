@@ -38,8 +38,8 @@ function handleFormSubmit(event) {
     // 3. Put the values of the variables in a card
     // &
     // 4. Display the card on the page (inside the #cards_container div)
-    function createCard({ destination, location, description  }) {
-        // console.log(location, destination, description, photo_url);
+    function createCard({ destination, location, description  }) {    //  <---  this passes the variables as an object, so that it is easier to destructure later
+        // console.log(location, destination, description, photo_url);     //  <--- as such, order of placement doesn't really matter
 
         /*
         <div class="card" style="width: 18rem;">
@@ -76,35 +76,23 @@ function handleFormSubmit(event) {
 
         // set attribute of class of img as 'card-img-top' <-- places img as the top section of the card
         img.setAttribute("class", "card-img-top");
-
-        img.setAttribute("src", photo_url);
         
         // set attribute of alt of img as 'name'
         img.setAttribute("alt", destination);
-
+        
         // set style of photo, to keep cards uniform
         img.style.height = "185px";
-
-
-        
-        if (photo_url.length === 0 ) {
-            pullImage(destination).then((data) => {
-                img.setAttribute("src", data.urls.small);
+                
+        // check to see if user submitted a photo.
+        if (photo_url.length === 0 ) {                      // <-- this checks for submission, === 0 means no submission
+            pullImage(destination).then((data) => {         // since no submission, activate function of pullImage, then
+                img.setAttribute("src", data.urls.small);   // set image as img on card
             })
+        } else {                                            // <-- if user did submit a url link for a photo, then
+            img.setAttribute("src", photo_url);             // use that photo as the src.
         }
-
-        // check to see if user did / didn't submit optional photo
         
-        // set a default photo if one is not submitted by user
-        // var defaultPhotoUrl = "https://imageio.forbes.com/specials-images/imageserve/5f709d82fa4f131fa2114a74/solo-women-travel-female-travel/960x0.jpg?fit=bounds&format=jpg&width=960";
-        
-        // if (photo_url.length === 0) {                   // <-- checks if no submission
-        //     img.setAttribute("src", defaultPhotoUrl);   // <-- sets to default if no submission
-        // } else {
-        //     img.setAttribute("src", photo_url);         // <-- sets submission as photo if photo submitted
-        // }
-
-        // append img to card
+        // add img to card
         card.appendChild(img);
         
         
@@ -221,9 +209,10 @@ function handleFormSubmit(event) {
  
 }
 
+// function to pull random image from Unsplash.com based on query input of destination
 async function pullImage(destination) {
-    let unsplashImg = await fetch("https://api.unsplash.com/photos/random?page=1&query=" + destination + "&client_id=" + myAccessKey)
-    let data = await unsplashImg.json();
-    console.log(data)
-    return data;    
+    const url = `https://api.unsplash.com/photos/random?page=1&query=${destination}&client_id=${myAccessKey}`
+    const unsplashImg = await fetch(url);
+    const data = await unsplashImg.json(); 
+    return data;
 }
